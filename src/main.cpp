@@ -15,7 +15,9 @@ int main() {
   while (true) {
     std::getline(std::cin, com);
     if (checkValidCommand(com)) {
-      //
+      if (com == "exit") {
+        return 0;
+      }
     } else {
       std::cout << com << ": command not found\n";
       std::cout << "$ ";
