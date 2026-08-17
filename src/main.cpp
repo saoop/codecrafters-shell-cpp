@@ -101,7 +101,7 @@ int main() {
             }
             for (const auto &entry : fs::directory_iterator(path)) {
               if (entry.path().stem().string() == args[0]) {
-                std::cout << entry.path().string() << "\n";
+                std::cout << args[0] << " is " << entry.path().string() << "\n";
                 return;
               }
             }
