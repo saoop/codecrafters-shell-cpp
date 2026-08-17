@@ -1,8 +1,11 @@
+#include <filesystem>
 #include <functional>
 #include <iostream>
 #include <string>
 #include <unordered_map>
 #include <vector>
+
+namespace fs = std::filesystem;
 
 struct Command {
   std::string name;
@@ -18,13 +21,10 @@ struct CommandArgs {
 };
 // will need a proper parser later?
 
-CommandArgs split_string(const std::string &s, char delim) {
+std::vector<std::string> split_string(const std::string &s, char delim) {
   size_t start = 0;
   size_t pos = 0;
   std::vector<std::string> out;
-  CommandArgs command_args;
-
-  int number_args{0};
 
   while (pos != std::string::npos) {
     pos = s.find(delim, start);
@@ -35,16 +35,17 @@ CommandArgs split_string(const std::string &s, char delim) {
       continue;
     }
 
-    // found 1st arg
-    if (number_args == 0) {
-      command_args.command_name = s.substr(start, pos - start);
-
-    } else {
-      command_args.args.push_back(s.substr(start, pos - start));
-    }
+    out.push_back(s.substr(start, pos - start));
     start = pos + 1;
-    number_args++;
   }
+  return out;
+}
+
+CommandArgs get_command_args(const std::vector<std::string> &s) {
+  CommandArgs command_args;
+
+  command_args.command_name = s[0];
+  command_args.args = std::vector<std::string>(s.begin() + 1, s.end());
 
   return command_args;
 }
@@ -79,21 +80,35 @@ int main() {
 
   Command type_command{
       .name = "type",
-      .handler =
-          [&commands](std::vector<std::string> args,
-                      std::unordered_map<std::string, std::string> kargs) {
-            if (args.size() == 0) {
-              std::cout << "Provide an argument\n";
-              return;
-            }
+      .handler = [&commands](
+                     std::vector<std::string> args,
+                     std::unordered_map<std::string, std::string> kargs) {
+        if (args.size() == 0) {
+          std::cout << "Provide an argument\n";
+          return;
+        }
 
-            if (commands.count(args[0])) {
-              std::cout << args[0] << " is a shell builtin\n";
+        if (commands.count(args[0])) {
+          std::cout << args[0] << " is a shell builtin\n";
 
-            } else {
-              std::cout << args[0] << ": not found\n";
+        } else {
+
+          // Important: ':' is only delimiter in linux. in windows its ';'.
+          std::vector<std::string> paths = split_string(getenv("PATH"), ':');
+          for (const auto &path : paths) {
+            if (!fs::exists(path)) {
+              continue;
             }
-          }};
+            for (const auto &entry : fs::directory_iterator(path)) {
+              if (entry.path().stem().string() == args[0]) {
+                std::cout << entry.path().string() << "\n";
+                return;
+              }
+            }
+          }
+          std::cout << args[0] << ": not found\n";
+        }
+      }};
 
   commands.insert({"exit", exit_command});
   commands.insert({"echo", echo_command});
@@ -107,12 +122,11 @@ int main() {
 
   while (!exit_flag) {
     std::cout << "$ ";
-
     std::getline(std::cin, com);
 
     // split?
 
-    CommandArgs command_args = split_string(com, delim);
+    CommandArgs command_args = get_command_args(split_string(com, ' '));
 
     if (commands.count(command_args.command_name)) {
       commands[command_args.command_name].handler(command_args.args, {});
