@@ -8,14 +8,17 @@ int main() {
   std::cout << std::unitbuf;
   std::cerr << std::unitbuf;
 
-  // TODO: Uncomment the code below to pass the first stage
   std::cout << "$ ";
 
   std::string com;
-  std::cin >> com;
-  if (checkValidCommand(com)) {
 
-  } else {
-    std::cout << com << ": command not found";
+  while (true) {
+    std::getline(std::cin, com);
+    if (checkValidCommand(com)) {
+      //
+    } else {
+      std::cout << com << ": command not found\n";
+      std::cout << "$ ";
+    }
   }
 }
