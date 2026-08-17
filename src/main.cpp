@@ -88,7 +88,7 @@ int main() {
             }
 
             if (commands.count(args[0])) {
-              std::cout << args[0] << " is a shell bulletin\n";
+              std::cout << args[0] << " is a shell builtin\n";
 
             } else {
               std::cout << args[0] << ": not found\n";
