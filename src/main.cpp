@@ -100,7 +100,10 @@ int main() {
               continue;
             }
             for (const auto &entry : fs::directory_iterator(path)) {
-              if (entry.path().stem().string() == args[0]) {
+              // check for exec permissions using fs.
+              bool has_exec = (fs::status(entry).permissions() &
+                               fs::perms::owner_exec) != fs::perms::none;
+              if (entry.path().stem().string() == args[0] && has_exec) {
                 std::cout << args[0] << " is " << entry.path().string() << "\n";
                 return;
               }
