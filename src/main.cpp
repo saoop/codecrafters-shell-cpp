@@ -77,8 +77,27 @@ int main() {
         std::cout << full_str << "\n";
       }};
 
+  Command type_command{
+      .name = "type",
+      .handler =
+          [&commands](std::vector<std::string> args,
+                      std::unordered_map<std::string, std::string> kargs) {
+            if (args.size() == 0) {
+              std::cout << "Provide an argument\n";
+              return;
+            }
+
+            if (commands.count(args[0])) {
+              std::cout << args[0] << " is a shell bulletin\n";
+
+            } else {
+              std::cout << args[0] << ": not found\n";
+            }
+          }};
+
   commands.insert({"exit", exit_command});
   commands.insert({"echo", echo_command});
+  commands.insert({"type", type_command});
 
   // Flush after every std::cout / std:cerr
   std::cout << std::unitbuf;
