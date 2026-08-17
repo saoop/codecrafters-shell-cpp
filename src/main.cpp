@@ -1,9 +1,24 @@
 #include <iostream>
 #include <string>
+#include <unordered_map>
 
-bool checkValidCommand(std::string &com) { return false; }
+struct Command {
+  std::string name;
+};
+
+bool checkValidCommand(std::unordered_map<std::string, Command> &commands,
+                       std::string &com) {
+  if (!commands.count(com)) {
+    return false;
+  }
+  return true;
+}
 
 int main() {
+  std::unordered_map<std::string, Command> commands;
+
+  commands.insert({"exit", {"exit"}});
+
   // Flush after every std::cout / std:cerr
   std::cout << std::unitbuf;
   std::cerr << std::unitbuf;
@@ -14,7 +29,7 @@ int main() {
 
   while (true) {
     std::getline(std::cin, com);
-    if (checkValidCommand(com)) {
+    if (commands.count(com)) {
       if (com == "exit") {
         return 0;
       }
