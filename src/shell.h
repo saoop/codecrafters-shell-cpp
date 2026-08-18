@@ -17,6 +17,7 @@ public:
   std::string execute(const std::string &com);
 
   fs::path get_current_path() { return current_path; }
+
   void set_current_path(fs::path new_path) {
     if (fs::exists(new_path) && fs::is_directory(new_path)) {
       current_path = new_path;

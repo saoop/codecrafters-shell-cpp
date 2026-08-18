@@ -71,9 +71,24 @@ Command CommandBuilder::build_cd(Shell &shell) {
       .name = "cd",
       .handler = [&shell](std::vector<std::string> args,
                           std::unordered_map<std::string, std::string> kargs) {
-        std::string to_path = args[0];
+        if (args.size() == 0 || args[0].size() == 0) {
+          shell.print_line("Specify the directory");
+        }
+
+        std ::string to_path = "";
+
+        if (args[0][0] == '~') {
+          // change  to  home dir as root.
+          std::string home_dir = getenv("HOME");
+          to_path += home_dir;
+          to_path += args[0].substr(1, args[0].size() - 1);
+
+        } else {
+          to_path += args[0];
+        }
 
         fs::path p = to_path;
+
         if (p.is_relative()) {
           if (!fs::exists(shell.get_current_path() / p)) {
             shell.print_line(args[0] + ": No such file or directory");
@@ -81,6 +96,7 @@ Command CommandBuilder::build_cd(Shell &shell) {
           }
           p = fs::canonical(shell.get_current_path() / p);
         }
+
         // Now we sure we have absolute path
         if (!fs::exists(p)) {
           shell.print_line(args[0] + ": No such file or directory");
