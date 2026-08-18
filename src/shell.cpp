@@ -5,8 +5,14 @@
 #include <iostream>
 #include <unordered_map>
 
+#include <filesystem>
+
+namespace fs = std::filesystem;
+
 Shell::Shell() {
   // build built-in commands
+
+  current_path = fs::current_path();
 
   commands.insert({"exit", CommandBuilder::build_exit(*this)});
   commands.insert({"echo", CommandBuilder::build_echo(*this)});

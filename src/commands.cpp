@@ -75,3 +75,13 @@ Command CommandBuilder::build_type(Shell &shell) {
       }};
   return type_command;
 };
+Command CommandBuilder::build_pwd(Shell &shell) {
+  Command pwd_command{
+      .name = "pwd",
+      .handler = [&shell](std::vector<std::string> args,
+                          std::unordered_map<std::string, std::string> kargs) {
+        shell.print_line(shell.get_current_path().string());
+      }};
+
+  return pwd_command;
+};

@@ -19,4 +19,5 @@ public:
   static Command build_exit(Shell &shell);
   static Command build_echo(Shell &shell);
   static Command build_type(Shell &shell);
+  static Command build_pwd(Shell &shell);
 };

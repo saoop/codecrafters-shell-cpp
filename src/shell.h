@@ -1,9 +1,11 @@
 // shell.h
 #pragma once
 #include "commands.h"
+#include <filesystem>
 #include <string>
 #include <string_view>
 #include <unordered_map>
+namespace fs = std::filesystem;
 
 class Shell {
 public:
@@ -14,11 +16,14 @@ public:
   void start();
   std::string execute(const std::string &com);
 
+  fs::path get_current_path() { return current_path; }
+
   // Disable copies
   Shell(const Shell &) = delete;
   Shell &operator=(const Shell &) = delete;
 
 private:
   bool m_exit_flag{false};
+  fs::path current_path;
   std::unordered_map<std::string, Command> commands;
 };
