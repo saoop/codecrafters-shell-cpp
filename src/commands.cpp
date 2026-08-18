@@ -1,25 +1,5 @@
 #include "command_utils.h"
 
-std::string is_executable(const std::string &com) {
-  // Important: ':' is only delimiter in linux. in windows its ';'.
-  std::vector<std::string> paths = split_string(getenv("PATH"), ':');
-  for (const auto &path : paths) {
-    if (!fs::exists(path)) {
-      continue;
-    }
-    for (const auto &entry : fs::directory_iterator(path)) {
-      // check for exec permissions using fs.
-      bool has_exec = (fs::status(entry).permissions() &
-                       fs::perms::owner_exec) != fs::perms::none;
-      if (entry.path().stem().string() == com && has_exec) {
-        return entry.path().string();
-      }
-    }
-  }
-
-  return "NO";
-}
-
 Command CommandBuilder::build_exit(Shell &shell) {
   Command exit_command{
       .name = "exit",
@@ -92,15 +72,20 @@ Command CommandBuilder::build_cd(Shell &shell) {
       .handler = [&shell](std::vector<std::string> args,
                           std::unordered_map<std::string, std::string> kargs) {
         std::string to_path = args[0];
-        if (!fs::exists(to_path)) {
+
+        fs::path p = to_path;
+        if (p.is_relative()) {
+          p = fs::canonical(shell.get_current_path() / p);
+        }
+        // Now we sure we have absolute path
+        if (!fs::exists(p)) {
           shell.print_line(args[0] + ": No such file or directory");
           return;
         }
-        if (!fs::is_directory(to_path)) {
+        if (!fs::is_directory(p)) {
           shell.print_line(args[0] + "is not a directory");
           return;
         }
-        const fs::path p = to_path;
         shell.set_current_path(p);
       }};
   return cd_command;
