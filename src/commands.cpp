@@ -85,3 +85,23 @@ Command CommandBuilder::build_pwd(Shell &shell) {
 
   return pwd_command;
 };
+
+Command CommandBuilder::build_cd(Shell &shell) {
+  Command cd_command{
+      .name = "cd",
+      .handler = [&shell](std::vector<std::string> args,
+                          std::unordered_map<std::string, std::string> kargs) {
+        std::string to_path = args[0];
+        if (!fs::exists(to_path)) {
+          shell.print_line(args[0] + ": No such file or directory");
+          return;
+        }
+        if (!fs::is_directory(to_path)) {
+          shell.print_line(args[0] + "is not a directory");
+          return;
+        }
+        const fs::path p = to_path;
+        shell.set_current_path(p);
+      }};
+  return cd_command;
+}
