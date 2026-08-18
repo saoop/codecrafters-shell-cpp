@@ -17,6 +17,7 @@ Shell::Shell() {
   commands.insert({"exit", CommandBuilder::build_exit(*this)});
   commands.insert({"echo", CommandBuilder::build_echo(*this)});
   commands.insert({"type", CommandBuilder::build_type(*this)});
+  commands.insert({"pwd", CommandBuilder::build_pwd(*this)});
 }
 
 void Shell::exit() { m_exit_flag = true; }
