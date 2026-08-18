@@ -61,7 +61,7 @@ Command CommandBuilder::build_type(Shell &shell) {
         }
 
         if (shell.is_built_in(args[0])) {
-          shell.print_line(args[0] + " is a built in");
+          shell.print_line(args[0] + " is a shell builtin");
 
         } else {
 
