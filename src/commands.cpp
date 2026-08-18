@@ -75,6 +75,10 @@ Command CommandBuilder::build_cd(Shell &shell) {
 
         fs::path p = to_path;
         if (p.is_relative()) {
+          if (!fs::exists(shell.get_current_path() / p)) {
+            shell.print_line(args[0] + ": No such file or directory");
+            return;
+          }
           p = fs::canonical(shell.get_current_path() / p);
         }
         // Now we sure we have absolute path
