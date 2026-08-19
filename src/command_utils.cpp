@@ -64,9 +64,6 @@ CommandArgs parse_command(const std::string &s) {
       if (s[current_index] == '\'') {
         // we go back to letters
         state = LETTERS;
-      } else if (s[current_index] == '\\') {
-        // go to backlash
-        state = QUOTES_BACKSLASH;
       } else {
         // we parse letter or space inside of the quotes
         out.push_back(s[current_index]);
@@ -90,9 +87,6 @@ CommandArgs parse_command(const std::string &s) {
     else if (state == LETTERS_BACKSLASH) {
       out.push_back(s[current_index]);
       state = LETTERS;
-    } else if (state == QUOTES_BACKSLASH) {
-      out.push_back(s[current_index]);
-      state = QUOTES;
     } else if (state == DOUBLE_QUOTES_BACKSLASH) {
       out.push_back(s[current_index]);
       state = DOUBLE_QUOTES;
