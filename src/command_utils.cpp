@@ -86,6 +86,8 @@ CommandArgs parse_command(const std::string &s) {
       if (s[current_index] == '\'') {
         // we go to quotes
         state = ARGS_QUOTES;
+      } else if (s[current_index] == '"') {
+        state = ARGS_DOUBLE_QUOTES;
       } else if (s[current_index] == ' ') {
         // Parsed the full argument, go to skip spaces
         command_args.args.push_back(std::move(out));
@@ -109,6 +111,7 @@ CommandArgs parse_command(const std::string &s) {
 
     else if (state == ARGS_DOUBLE_QUOTES) {
       if (s[current_index] == '"') {
+        // exit to letters
         state = ARGS;
       }
 
