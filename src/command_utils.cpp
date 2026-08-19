@@ -88,8 +88,26 @@ CommandArgs parse_command(const std::string &s) {
       out.push_back(s[current_index]);
       state = LETTERS;
     } else if (state == DOUBLE_QUOTES_BACKSLASH) {
-      out.push_back(s[current_index]);
-      state = DOUBLE_QUOTES;
+      // other wise its treated as a normal backslash
+      char c = s[current_index];
+      if (c == '\\' || c == '$' || c == '`' || c == '\n') {
+        out.push_back(c);
+        state = DOUBLE_QUOTES;
+
+      } else if (c == '"' &&
+                 (current_index == n - 1 || s[current_index + 1] == ' ')) {
+        // if we close the quotes
+        out.push_back('\\');
+        state = DOUBLE_QUOTES;
+      } else if (c == '"') {
+        out.push_back(c);
+        state = DOUBLE_QUOTES;
+
+      } else {
+        out.push_back('\\');
+        out.push_back(c);
+        state = DOUBLE_QUOTES;
+      }
     }
 
     current_index++;
