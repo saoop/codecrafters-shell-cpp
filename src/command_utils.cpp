@@ -13,106 +13,70 @@ CommandArgs parse_command(const std::string &s) {
   int n = s.size();
   CommandArgs command_args{};
 
-  ParseStates state = SKIP_SPACE_INITIAL;
+  ParseStates state = SKIP_SPACE;
 
   std::string out;
 
+  std::vector<std::string> words;
+
   while (current_index < n) {
-    if (state == SKIP_SPACE_INITIAL) {
-      if (s[current_index] != ' ') {
-        if (s[current_index] == '\'') {
-          state = NAME_QUOTES;
-        } else if (s[current_index] == '"') {
-          state = NAME_DOUBLE_QUOTES;
-        } else {
-          out.push_back(s[current_index]);
-          state = NAME;
-        }
-      }
-    }
 
-    else if (state == NAME) {
-      if (s[current_index] == '\'') {
-        // enter the quotations
-        state = NAME_QUOTES;
-      } else if (s[current_index] == '"') {
-        // enter double quotations
-        state = NAME_DOUBLE_QUOTES;
-      } else if (s[current_index] == ' ') {
-        // fully parsed
-        state = SKIP_SPACE_ARG;
-        command_args.command_name = std::move(out);
-        out.clear();
-      } else {
-        out.push_back(s[current_index]);
-      }
-    }
-
-    else if (state == NAME_QUOTES) {
-      if (s[current_index] == '\'') {
-        // exit quotations
-        state = NAME;
-      } else {
-        out.push_back(s[current_index]);
-      }
-    }
-
-    else if (state == NAME_DOUBLE_QUOTES) {
-      if (s[current_index] == '"') {
-        // exit quotations
-        state = NAME;
-      } else {
-        out.push_back(s[current_index]);
-      }
-    }
-
-    else if (state == SKIP_SPACE_ARG) {
+    if (state == SKIP_SPACE) {
       if (s[current_index] != ' ') {
         if (s[current_index] == '\'') {
           // we go to quotes
-          state = ARGS_QUOTES;
+          state = QUOTES;
         } else if (s[current_index] == '"') {
           // we go double quotes
-          state = ARGS_DOUBLE_QUOTES;
+          state = DOUBLE_QUOTES;
         } else {
           // we go to letter parsing
-          state = ARGS;
+          state = LETTERS;
           out.push_back(s[current_index]);
         }
       }
     }
 
-    else if (state == ARGS) {
+    else if (state == LETTERS) {
       if (s[current_index] == '\'') {
         // we go to quotes
-        state = ARGS_QUOTES;
+        state = QUOTES;
       } else if (s[current_index] == '"') {
-        state = ARGS_DOUBLE_QUOTES;
+        state = DOUBLE_QUOTES;
       } else if (s[current_index] == ' ') {
         // Parsed the full argument, go to skip spaces
-        command_args.args.push_back(std::move(out));
+        words.push_back(std::move(out));
         out.clear();
-        state = SKIP_SPACE_ARG;
+        state = SKIP_SPACE;
+      } else if (s[current_index] == '\\') {
+        // go to backlash
+        state = LETTERS_BACKSLASH;
       } else {
         // we parse letter
         out.push_back(s[current_index]);
       }
     }
 
-    else if (state == ARGS_QUOTES) {
+    else if (state == QUOTES) {
       if (s[current_index] == '\'') {
         // we go back to letters
-        state = ARGS;
+        state = LETTERS;
+      } else if (s[current_index] == '\\') {
+        // go to backlash
+        state = QUOTES_BACKSLASH;
       } else {
         // we parse letter or space inside of the quotes
         out.push_back(s[current_index]);
       }
     }
 
-    else if (state == ARGS_DOUBLE_QUOTES) {
+    else if (state == DOUBLE_QUOTES) {
       if (s[current_index] == '"') {
         // exit to letters
-        state = ARGS;
+        state = LETTERS;
+      } else if (s[current_index] == '\\') {
+        // go to backlash
+        state = DOUBLE_QUOTES_BACKSLASH;
       }
 
       else {
@@ -120,15 +84,24 @@ CommandArgs parse_command(const std::string &s) {
       }
     }
 
+    else if (state == LETTERS_BACKSLASH) {
+      out.push_back(s[current_index]);
+      state = LETTERS;
+    } else if (state == QUOTES_BACKSLASH) {
+      out.push_back(s[current_index]);
+      state = QUOTES;
+    } else if (state == DOUBLE_QUOTES_BACKSLASH) {
+      out.push_back(s[current_index]);
+      state = DOUBLE_QUOTES;
+    }
+
     current_index++;
   }
 
-  if (state == NAME) {
-    command_args.command_name = std::move(out);
-  }
-  if (state == ARGS) {
-    command_args.args.push_back(std::move(out));
-  }
+  words.push_back(std::move(out));
+
+  command_args.command_name = std::move(words[0]);
+  command_args.args = std::vector<std::string>(words.begin() + 1, words.end());
 
   return command_args;
 }
