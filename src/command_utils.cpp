@@ -29,6 +29,9 @@ CommandArgs parse_command(const std::string &s) {
         } else if (s[current_index] == '"') {
           // we go double quotes
           state = DOUBLE_QUOTES;
+        } else if (s[current_index] == '\\') {
+          state = LETTERS_BACKSLASH;
+
         } else {
           // we go to letter parsing
           state = LETTERS;
