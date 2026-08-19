@@ -49,7 +49,8 @@ void Shell::start() {
     std::cout << "$ ";
     std::getline(std::cin, com);
 
-    CommandArgs command_args = get_command_args(split_string(com, ' '));
+    CommandArgs command_args = parse_command(com);
+    // std::cout << command_args.args[0];
 
     // check if it's a built in command
     if (commands.count(command_args.command_name)) {

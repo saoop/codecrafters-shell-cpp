@@ -10,9 +10,20 @@
 
 namespace fs = std::filesystem;
 
+enum ParseStates {
+  NAME,
+  NAME_QUOTES,
+  ARGS,
+  ARGS_QUOTES,
+  SKIP_SPACE_INITIAL,
+  SKIP_SPACE_ARG
+
+};
+
 CommandArgs get_command_args(const std::vector<std::string> &s);
 
 std::string is_executable(const std::string &com);
+CommandArgs parse_command(const std::string &s);
 
 class CommandBuilder {
 public:
