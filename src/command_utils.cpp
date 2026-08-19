@@ -22,6 +22,8 @@ CommandArgs parse_command(const std::string &s) {
       if (s[current_index] != ' ') {
         if (s[current_index] == '\'') {
           state = NAME_QUOTES;
+        } else if (s[current_index] == '"') {
+          state = NAME_DOUBLE_QUOTES;
         } else {
           out.push_back(s[current_index]);
           state = NAME;
@@ -33,6 +35,9 @@ CommandArgs parse_command(const std::string &s) {
       if (s[current_index] == '\'') {
         // enter the quotations
         state = NAME_QUOTES;
+      } else if (s[current_index] == '"') {
+        // enter double quotations
+        state = NAME_DOUBLE_QUOTES;
       } else if (s[current_index] == ' ') {
         // fully parsed
         state = SKIP_SPACE_ARG;
@@ -52,18 +57,32 @@ CommandArgs parse_command(const std::string &s) {
       }
     }
 
+    else if (state == NAME_DOUBLE_QUOTES) {
+      if (s[current_index] == '"') {
+        // exit quotations
+        state = NAME;
+      } else {
+        out.push_back(s[current_index]);
+      }
+    }
+
     else if (state == SKIP_SPACE_ARG) {
       if (s[current_index] != ' ') {
         if (s[current_index] == '\'') {
           // we go to quotes
           state = ARGS_QUOTES;
+        } else if (s[current_index] == '"') {
+          // we go double quotes
+          state = ARGS_DOUBLE_QUOTES;
         } else {
           // we go to letter parsing
           state = ARGS;
           out.push_back(s[current_index]);
         }
       }
-    } else if (state == ARGS) {
+    }
+
+    else if (state == ARGS) {
       if (s[current_index] == '\'') {
         // we go to quotes
         state = ARGS_QUOTES;
@@ -76,12 +95,24 @@ CommandArgs parse_command(const std::string &s) {
         // we parse letter
         out.push_back(s[current_index]);
       }
-    } else if (state == ARGS_QUOTES) {
+    }
+
+    else if (state == ARGS_QUOTES) {
       if (s[current_index] == '\'') {
         // we go back to letters
         state = ARGS;
       } else {
         // we parse letter or space inside of the quotes
+        out.push_back(s[current_index]);
+      }
+    }
+
+    else if (state == ARGS_DOUBLE_QUOTES) {
+      if (s[current_index] == '"') {
+        state = ARGS;
+      }
+
+      else {
         out.push_back(s[current_index]);
       }
     }
