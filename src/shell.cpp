@@ -83,6 +83,10 @@ void Shell::start() {
     command_args = parse_command(com);
     // std::cout << command_args.args[0];
 
+    // Always create folders for errors and output.
+    writeErrorToFiles("\0");
+    writeToOutputFiles("\0");
+
     // check if it's a built in command
     if (commands.count(command_args.command_name)) {
       commands[command_args.command_name].handler(command_args.args, {});
@@ -90,12 +94,11 @@ void Shell::start() {
     }
     // check if it's executable
     std::string path = is_executable(command_args.command_name);
-    if (path != "NO") {
+    if (path != "NO") { // make another command, like a ghost command with the
+                        // same interface?
       std::string result = execute(com);
       std::cout << result;
-    }
-
-    else {
+    } else {
       std::cout << com << ": command not found\n";
     }
   }

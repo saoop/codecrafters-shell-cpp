@@ -37,15 +37,11 @@ std::string is_executable(const std::string &com) {
   return "NO";
 }
 bool writeToFile(const std::string &path, const std::string &what) {
-  // if (fs::exists(path)) {
-  //   throw std::runtime_error("Path does exist");
-  // }
-  // if()
 
   std::ofstream file;
   file.open(path, std::ofstream::out);
 
-  file << what << "\n";
+  file << what;
   file.close();
 
   return true;
