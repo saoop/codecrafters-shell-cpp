@@ -12,11 +12,14 @@ public:
   Shell();
   void exit();
   void output(const std::string &s);
+  void outputError(const std::string &s);
   bool is_built_in(const std::string &s) const;
   void start();
   void printLine(std::string_view s);
   void writeToOutputFiles(const std::string &what);
-
+  void writeErrorToFiles(const std::string &what);
+  void writeToFiles(const std::string &what,
+                    const std::vector<std::string> &paths);
   std::string execute(const std::string &com);
 
   fs::path get_current_path() { return current_path; }

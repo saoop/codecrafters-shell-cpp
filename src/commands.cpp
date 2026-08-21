@@ -36,7 +36,7 @@ Command CommandBuilder::build_type(Shell &shell) {
       .handler = [&shell](std::vector<std::string> args,
                           std::unordered_map<std::string, std::string> kargs) {
         if (args.size() == 0) {
-          shell.output("Provide an argument");
+          shell.outputError("Provide an argument");
           return;
         }
 
@@ -47,7 +47,7 @@ Command CommandBuilder::build_type(Shell &shell) {
 
           std::string path = is_executable(args[0]);
           if (path == "NO") {
-            shell.output(args[0] + ": not found");
+            shell.outputError(args[0] + ": not found");
           } else {
             shell.output(args[0] + " is " + path);
           }
@@ -72,7 +72,7 @@ Command CommandBuilder::build_cd(Shell &shell) {
       .handler = [&shell](std::vector<std::string> args,
                           std::unordered_map<std::string, std::string> kargs) {
         if (args.size() == 0 || args[0].size() == 0) {
-          shell.output("Specify the directory");
+          shell.outputError("Specify the directory");
           return;
         }
 
@@ -92,7 +92,7 @@ Command CommandBuilder::build_cd(Shell &shell) {
 
         if (p.is_relative()) {
           if (!fs::exists(shell.get_current_path() / p)) {
-            shell.output(args[0] + ": No such file or directory");
+            shell.outputError(args[0] + ": No such file or directory");
             return;
           }
           p = fs::canonical(shell.get_current_path() / p);
@@ -100,11 +100,11 @@ Command CommandBuilder::build_cd(Shell &shell) {
 
         // Now we sure we have absolute path
         if (!fs::exists(p)) {
-          shell.output(args[0] + ": No such file or directory");
+          shell.outputError(args[0] + ": No such file or directory");
           return;
         }
         if (!fs::is_directory(p)) {
-          shell.output(args[0] + "is not a directory");
+          shell.outputError(args[0] + "is not a directory");
           return;
         }
         shell.set_current_path(p);

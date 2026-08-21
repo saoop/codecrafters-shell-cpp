@@ -6,19 +6,6 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-// will need a proper parser later?
-
-// w -> OUTPUT_BEGIN NAME OUTPUT_ARGS
-// OUTPUT_BEGIN -> >string | 1>string | OUTPUT_BEGIN | eps
-// NAME -> string
-
-// OUTPUT_ARGS -> OUTPUT ARG OUTPUT_ARGS | eps
-// OUTPUT_ARG -> >string | 1>string | string| eps
-
-// using str_vec = const std::vector<std::string> &;
-
-// bool parseOutput(str_vec s, int &cursor);
-// bool parseArgs(str_vec s, int &cursor);
 
 CommandArgs parse_command(const std::string &s) {
   std::vector<std::string> tokens = parseCommand(s);

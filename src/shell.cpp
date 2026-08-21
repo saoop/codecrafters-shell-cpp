@@ -2,10 +2,9 @@
 #include "command_utils.h"
 // #include "commands.h"
 #include "utils.h"
+#include <filesystem>
 #include <iostream>
 #include <unordered_map>
-
-#include <filesystem>
 
 namespace fs = std::filesystem;
 
@@ -23,10 +22,16 @@ Shell::Shell() {
 
 void Shell::exit() { m_exit_flag = true; }
 void Shell::printLine(std::string_view s) { std::cout << s << "\n"; }
-void Shell::writeToOutputFiles(const std::string &what) {
-  for (auto path : command_args.output_files) {
+
+void Shell::writeToFiles(const std::string &what,
+                         const std::vector<std::string> &paths) {
+  for (auto path : paths) {
     writeToFile(path, what);
   }
+}
+
+void Shell::writeToOutputFiles(const std::string &what) {
+  writeToFiles(what, command_args.output_files);
 }
 void Shell::output(const std::string &s) {
   if (command_args.output_files.size() > 0) {
@@ -35,6 +40,18 @@ void Shell::output(const std::string &s) {
 
   } else {
     printLine(s);
+  }
+}
+
+void Shell::writeErrorToFiles(const std::string &what) {
+  writeToFiles(what, command_args.error_output_files);
+}
+
+void Shell::outputError(const std::string &what) {
+  if (command_args.error_output_files.size() > 0) {
+    writeErrorToFiles(what);
+  } else {
+    printLine(what);
   }
 }
 

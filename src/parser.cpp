@@ -123,6 +123,13 @@ std::vector<std::string> parseCommand(const std::string &s) {
   return words;
 }
 
+// w -> OUTPUT_BEGIN NAME OUTPUT_ARGS
+// OUTPUT_BEGIN -> >string | 2>string | 1>string | OUTPUT_BEGIN | eps
+// NAME -> string
+
+// OUTPUT_ARGS -> OUTPUT ARG OUTPUT_ARGS | eps
+// OUTPUT_ARG -> >string | 1>string | 2>string | string| eps
+
 bool TokenGrammarParser::parseSentence() {
   // first parse the outputs
 
@@ -151,7 +158,8 @@ bool TokenGrammarParser::parseOutputBegin() {
   // 1> filename
 
   //
-  if (m_tokens[m_cursor] != ">" && m_tokens[m_cursor] != "1>") {
+  if (m_tokens[m_cursor] != ">" && m_tokens[m_cursor] != "1>" &&
+      m_tokens[m_cursor] != "2>") {
     return true; // can be eps
   }
 
@@ -164,6 +172,13 @@ bool TokenGrammarParser::parseOutputBegin() {
 
   if (m_tokens[m_cursor] == ">" || m_tokens[m_cursor] == "1>") {
     throw std::runtime_error("Parsing error: '>' must be followed by a string");
+  }
+
+  // if it was error:
+  if (m_tokens[m_cursor - 1] == "2>") {
+    m_CommandArgs.error_output_files.push_back(m_tokens[m_cursor]);
+  } else {
+    m_CommandArgs.output_files.push_back(m_tokens[m_cursor]);
   }
 
   m_cursor++;
@@ -193,11 +208,20 @@ bool TokenGrammarParser::parseOutputArg() {
   // std::cout << "parsing OutpuArg\n";
   // std::cout << "current token: " << s[cursor] << '\n';
 
-  if ((m_tokens[m_cursor] == ">" || m_tokens[m_cursor] == "1>") &&
+  if ((m_tokens[m_cursor] == ">" || m_tokens[m_cursor] == "1>" ||
+       m_tokens[m_cursor] == "2>") &&
       m_cursor < m_tokens.size() - 1 &&
       is_proper_string(m_tokens[m_cursor + 1])) {
+
+    if (m_tokens[m_cursor] == "2>") {
+      // if error file
+      m_CommandArgs.error_output_files.push_back(m_tokens[m_cursor + 1]);
+    } else {
+      // if to normal output
+      m_CommandArgs.output_files.push_back(m_tokens[m_cursor + 1]);
+    }
+
     m_cursor += 2;
-    m_CommandArgs.output_files.push_back(m_tokens[m_cursor - 1]);
     return true;
   }
 

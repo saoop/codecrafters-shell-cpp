@@ -16,4 +16,5 @@ struct CommandArgs {
   std::vector<std::string> args;
   std::unordered_map<std::string, std::string> kargs;
   std::vector<std::string> output_files;
+  std::vector<std::string> error_output_files;
 };
