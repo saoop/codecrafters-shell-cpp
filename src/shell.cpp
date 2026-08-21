@@ -84,8 +84,8 @@ void Shell::start() {
     // std::cout << command_args.args[0];
 
     // Always create folders for errors and output.
-    writeErrorToFiles("\0");
-    writeToOutputFiles("\0");
+    writeErrorToFiles("");
+    writeToOutputFiles("");
 
     // check if it's a built in command
     if (commands.count(command_args.command_name)) {
