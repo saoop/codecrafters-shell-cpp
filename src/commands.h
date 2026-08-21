@@ -3,6 +3,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+
 struct Command {
   std::string name;
   std::function<void(std::vector<std::string> args,

@@ -10,18 +10,6 @@
 
 namespace fs = std::filesystem;
 
-enum ParseStates {
-
-  LETTERS,
-  QUOTES,
-  SKIP_SPACE,
-  DOUBLE_QUOTES,
-  LETTERS_BACKSLASH,
-  QUOTES_BACKSLASH,
-  DOUBLE_QUOTES_BACKSLASH
-
-};
-
 CommandArgs get_command_args(const std::vector<std::string> &s);
 
 std::string is_executable(const std::string &com);
