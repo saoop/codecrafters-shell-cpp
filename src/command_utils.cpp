@@ -36,13 +36,18 @@ std::string is_executable(const std::string &com) {
 
   return "NO";
 }
-bool writeToFile(const std::string &path, const std::string &what) {
+
+void createFile(const std::string &path) {
+  std::ofstream file;
+  file.open(path, std::ofstream::out);
+  file.close();
+}
+
+void writeToFile(const std::string &path, const std::string &what) {
 
   std::ofstream file;
   file.open(path, std::ofstream::out);
 
-  file << what;
+  file << what << "\n";
   file.close();
-
-  return true;
 }

@@ -22,7 +22,11 @@ Shell::Shell() {
 
 void Shell::exit() { m_exit_flag = true; }
 void Shell::printLine(std::string_view s) { std::cout << s << "\n"; }
-
+void Shell::createFiles(const std::vector<std::string> &paths) {
+  for (auto path : paths) {
+    createFile(path);
+  }
+}
 void Shell::writeToFiles(const std::string &what,
                          const std::vector<std::string> &paths) {
   for (auto path : paths) {
@@ -84,8 +88,8 @@ void Shell::start() {
     // std::cout << command_args.args[0];
 
     // Always create folders for errors and output.
-    writeErrorToFiles("");
-    writeToOutputFiles("");
+    createFiles(command_args.output_files);
+    createFiles(command_args.error_output_files);
 
     // check if it's a built in command
     if (commands.count(command_args.command_name)) {
