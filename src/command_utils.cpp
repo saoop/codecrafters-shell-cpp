@@ -1,17 +1,17 @@
 #include "command_utils.h"
+#include <fstream>
 #include <functional>
+#include <iostream>
 #include <string>
 #include <unordered_map>
 #include <vector>
-
 // will need a proper parser later?
 
-CommandArgs parse_command(const std::string &s) {
+std::vector<std::string> parse_string_command(const std::string &s) {
   int next_index = 1;
   int last_index = 0;
   int current_index = 0;
   int n = s.size();
-  CommandArgs command_args{};
 
   ParseStates state = SKIP_SPACE;
 
@@ -113,19 +113,150 @@ CommandArgs parse_command(const std::string &s) {
     current_index++;
   }
 
+  // parse the words array.
+  // Also use a state machine.
+
   words.push_back(std::move(out));
 
-  command_args.command_name = std::move(words[0]);
-  command_args.args = std::vector<std::string>(words.begin() + 1, words.end());
-
-  return command_args;
+  return words;
 }
 
-CommandArgs get_command_args(const std::vector<std::string> &s) {
-  CommandArgs command_args;
+// we need to make a parser for the grammar:
+// for now it should be the following:
+// WORD = O* string (O | A)*
+// O =>  '>' string
+// A = > string
 
-  command_args.command_name = s[0];
-  command_args.args = std::vector<std::string>(s.begin() + 1, s.end());
+bool is_proper_string(const std::string &s) {
+  if (s == ">")
+    return false;
+  return true;
+}
+
+// w -> OUTPUT_BEGIN NAME OUTPUT_ARGS
+// OUTPUT_BEGIN -> >string OUTPUT_BEGIN | eps
+// NAME -> string
+
+// OUTPUT_ARGS -> OUTPUT ARG OUTPUT_ARGS | eps
+// OUTPUT_ARG -> >string | string| eps
+
+using str_vec = const std::vector<std::string> &;
+
+bool parseSentence(str_vec s, int &cursor, CommandArgs &command_args);
+bool parseName(str_vec s, int &cursor, CommandArgs &command_args);
+bool parseOutputBegin(str_vec s, int &cursor, CommandArgs &command_args);
+bool parseOutputArgs(str_vec s, int &cursor, CommandArgs &command_args);
+bool parseOutputArg(str_vec s, int &cursor, CommandArgs &command_args);
+// bool parseOutput(str_vec s, int &cursor);
+// bool parseArgs(str_vec s, int &cursor);
+
+bool parseSentence(str_vec s, int &cursor, CommandArgs &command_args) {
+  // first parse the outputs
+
+  // std::cout << "Parsing the sentence";
+
+  if (!parseOutputBegin(s, cursor, command_args)) {
+    return false;
+  }
+
+  // parse the name
+
+  if (!parseName(s, cursor, command_args))
+    return false;
+
+  return parseOutputArgs(s, cursor, command_args);
+}
+
+bool parseOutputBegin(str_vec s, int &cursor, CommandArgs &command_args) {
+  if (cursor >= s.size()) {
+    return true; // can be eps
+  }
+
+  // std::cout << "parsing OutputBegin\n";
+  // std::cout << "current token: " << s[cursor] << '\n';
+
+  if (s[cursor] != ">") {
+    return true; // can be eps
+  }
+
+  if (cursor >= s.size() - 1) {
+    // return
+    throw std::runtime_error("Parsing error: '>' must be followed by a string");
+  } // another rule? string
+
+  cursor++;
+
+  if (s[cursor] == ">") {
+    throw std::runtime_error("Parsing error: '>' must be followed by a string");
+  }
+
+  cursor++;
+
+  return parseOutputBegin(s, cursor, command_args);
+}
+
+bool parseName(str_vec s, int &cursor, CommandArgs &command_args) {
+  if (cursor >= s.size()) {
+    throw std::runtime_error(
+        "Parsing error: name of the command not specified");
+  }
+  // std::cout << "parsing Name\n";
+  // std::cout << "current token: " << s[cursor] << '\n';
+  if (!is_proper_string(s[cursor])) {
+    throw std::runtime_error(
+        "Parsing error: name of the command must be a proper string");
+  }
+  command_args.command_name = s[cursor];
+  cursor++;
+
+  return true;
+}
+
+bool parseOutputArg(str_vec s, int &cursor, CommandArgs &command_args) {
+
+  // std::cout << "parsing OutpuArg\n";
+  // std::cout << "current token: " << s[cursor] << '\n';
+
+  if (s[cursor] == ">" && cursor < s.size() - 1 &&
+      is_proper_string(s[cursor + 1])) {
+    cursor += 2;
+    command_args.output_files.push_back(s[cursor - 1]);
+    return true;
+  }
+
+  else if (is_proper_string(s[cursor])) {
+    command_args.args.push_back(s[cursor]);
+    cursor++;
+    return true;
+  }
+  return false;
+}
+
+bool parseOutputArgs(str_vec s, int &cursor, CommandArgs &command_args) {
+  // either output file of the string or argument
+  if (cursor >= s.size()) {
+    return true; // can be eps
+  }
+  // std::cout << "parsing OutputArgs\n";
+  // std::cout << "current token: " << s[cursor] << '\n';
+
+  if (parseOutputArg(s, cursor, command_args)) {
+    return parseOutputArgs(s, cursor, command_args);
+  };
+  return false;
+}
+
+CommandArgs parse_command(const std::string &s) {
+  std::vector<std::string> words = parse_string_command(s);
+  int cursor = 0;
+
+  CommandArgs command_args{};
+  parseSentence(words, cursor, command_args);
+
+  // command_args.command_name = std::move(words[0]);
+
+  // command_args.args = std::vector<std::string>(words.begin() + 1,
+  // words.end());
 
   return command_args;
 }
@@ -148,4 +279,18 @@ std::string is_executable(const std::string &com) {
   }
 
   return "NO";
+}
+bool writeToFile(const std::string &path, const std::string &what) {
+  // if (fs::exists(path)) {
+  //   throw std::runtime_error("Path does exist");
+  // }
+  // if()
+
+  std::ofstream file;
+  file.open(path, std::ofstream::out);
+
+  file << what << "\n";
+  file.close();
+
+  return true;
 }

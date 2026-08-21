@@ -23,7 +23,7 @@ Command CommandBuilder::build_echo(Shell &shell) {
         }
 
         full_str += args[args.size() - 1];
-        shell.print_line(full_str);
+        shell.output(full_str);
       }};
 
   return echo_command;
@@ -36,20 +36,20 @@ Command CommandBuilder::build_type(Shell &shell) {
       .handler = [&shell](std::vector<std::string> args,
                           std::unordered_map<std::string, std::string> kargs) {
         if (args.size() == 0) {
-          shell.print_line("Provide an argument");
+          shell.output("Provide an argument");
           return;
         }
 
         if (shell.is_built_in(args[0])) {
-          shell.print_line(args[0] + " is a shell builtin");
+          shell.output(args[0] + " is a shell builtin");
 
         } else {
 
           std::string path = is_executable(args[0]);
           if (path == "NO") {
-            shell.print_line(args[0] + ": not found");
+            shell.output(args[0] + ": not found");
           } else {
-            shell.print_line(args[0] + " is " + path);
+            shell.output(args[0] + " is " + path);
           }
         }
       }};
@@ -60,7 +60,7 @@ Command CommandBuilder::build_pwd(Shell &shell) {
       .name = "pwd",
       .handler = [&shell](std::vector<std::string> args,
                           std::unordered_map<std::string, std::string> kargs) {
-        shell.print_line(shell.get_current_path().string());
+        shell.output(shell.get_current_path().string());
       }};
 
   return pwd_command;
@@ -72,7 +72,7 @@ Command CommandBuilder::build_cd(Shell &shell) {
       .handler = [&shell](std::vector<std::string> args,
                           std::unordered_map<std::string, std::string> kargs) {
         if (args.size() == 0 || args[0].size() == 0) {
-          shell.print_line("Specify the directory");
+          shell.output("Specify the directory");
           return;
         }
 
@@ -92,7 +92,7 @@ Command CommandBuilder::build_cd(Shell &shell) {
 
         if (p.is_relative()) {
           if (!fs::exists(shell.get_current_path() / p)) {
-            shell.print_line(args[0] + ": No such file or directory");
+            shell.output(args[0] + ": No such file or directory");
             return;
           }
           p = fs::canonical(shell.get_current_path() / p);
@@ -100,11 +100,11 @@ Command CommandBuilder::build_cd(Shell &shell) {
 
         // Now we sure we have absolute path
         if (!fs::exists(p)) {
-          shell.print_line(args[0] + ": No such file or directory");
+          shell.output(args[0] + ": No such file or directory");
           return;
         }
         if (!fs::is_directory(p)) {
-          shell.print_line(args[0] + "is not a directory");
+          shell.output(args[0] + "is not a directory");
           return;
         }
         shell.set_current_path(p);

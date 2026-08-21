@@ -25,6 +25,7 @@ enum ParseStates {
 CommandArgs get_command_args(const std::vector<std::string> &s);
 
 std::string is_executable(const std::string &com);
+bool writeToFile(const std::string &path, const std::string &what);
 CommandArgs parse_command(const std::string &s);
 
 class CommandBuilder {

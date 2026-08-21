@@ -22,7 +22,21 @@ Shell::Shell() {
 }
 
 void Shell::exit() { m_exit_flag = true; }
-void Shell::print_line(std::string_view s) { std::cout << s << "\n"; }
+void Shell::printLine(std::string_view s) { std::cout << s << "\n"; }
+void Shell::writeToOutputFiles(const std::string &what) {
+  for (auto path : command_args.output_files) {
+    writeToFile(path, what);
+  }
+}
+void Shell::output(const std::string &s) {
+  if (command_args.output_files.size() > 0) {
+    // output to file
+    writeToOutputFiles(s);
+
+  } else {
+    printLine(s);
+  }
+}
 
 bool Shell::is_built_in(const std::string &s) const {
   return commands.count(s) > 0;
@@ -49,7 +63,7 @@ void Shell::start() {
     std::cout << "$ ";
     std::getline(std::cin, com);
 
-    CommandArgs command_args = parse_command(com);
+    command_args = parse_command(com);
     // std::cout << command_args.args[0];
 
     // check if it's a built in command
