@@ -63,11 +63,11 @@ void Shell::outputError(const std::string &what) {
     writeToFiles(what, command_args.error_files);
   }
 
-  if (command_args.appendd_error_files.size() > 0) {
-    appendToFiles(what, command_args.appendd_error_files);
+  if (command_args.append_error_files.size() > 0) {
+    appendToFiles(what, command_args.append_error_files);
   }
 
-  if (command_args.appendd_error_files.size() == 0 &&
+  if (command_args.append_error_files.size() == 0 &&
       command_args.error_files.size() == 0) {
     printLine(what);
   }

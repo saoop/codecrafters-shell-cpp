@@ -18,5 +18,5 @@ struct CommandArgs {
   std::vector<std::string> output_files;
   std::vector<std::string> error_files;
   std::vector<std::string> append_output_files;
-  std::vector<std::string> appendd_error_files;
+  std::vector<std::string> append_error_files;
 };

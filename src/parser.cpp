@@ -179,10 +179,11 @@ bool TokenGrammarParser::parseOutputBegin() {
     m_CommandArgs.error_files.push_back(m_tokens[m_cursor]);
   } else if (m_tokens[m_cursor - 1] == ">" || m_tokens[m_cursor - 1] == "1>") {
     m_CommandArgs.output_files.push_back(m_tokens[m_cursor]);
-  } else if (m_tokens[m_cursor - 1] == ">" || m_tokens[m_cursor - 1] == "1>") {
+  } else if (m_tokens[m_cursor - 1] == ">>" ||
+             m_tokens[m_cursor - 1] == "1>>") {
     m_CommandArgs.append_output_files.push_back(m_tokens[m_cursor]);
   } else if (m_tokens[m_cursor - 1] == "2>>") {
-    m_CommandArgs.appendd_error_files.push_back(m_tokens[m_cursor]);
+    m_CommandArgs.append_error_files.push_back(m_tokens[m_cursor]);
   } else {
     throw std::runtime_error("Parsing error: unrecognized token: " +
                              m_tokens[m_cursor]);
@@ -220,11 +221,16 @@ bool TokenGrammarParser::parseOutputArg() {
       is_proper_string(m_tokens[m_cursor + 1])) {
 
     if (m_tokens[m_cursor] == "2>") {
-      // if error file
       m_CommandArgs.error_files.push_back(m_tokens[m_cursor + 1]);
-    } else {
-      // if to normal output
+    } else if (m_tokens[m_cursor] == ">" || m_tokens[m_cursor] == "1>") {
       m_CommandArgs.output_files.push_back(m_tokens[m_cursor + 1]);
+    } else if (m_tokens[m_cursor] == ">>" || m_tokens[m_cursor] == "1>>") {
+      m_CommandArgs.append_output_files.push_back(m_tokens[m_cursor + 1]);
+    } else if (m_tokens[m_cursor] == "2>>") {
+      m_CommandArgs.append_error_files.push_back(m_tokens[m_cursor + 1]);
+    } else {
+      throw std::runtime_error("Parsing error: unrecognized token: " +
+                               m_tokens[m_cursor]);
     }
 
     m_cursor += 2;
