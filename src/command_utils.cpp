@@ -121,12 +121,6 @@ std::vector<std::string> parse_string_command(const std::string &s) {
   return words;
 }
 
-// we need to make a parser for the grammar:
-// for now it should be the following:
-// WORD = O* string (O | A)*
-// O =>  '>' string
-// A = > string
-
 bool is_proper_string(const std::string &s) {
   if (s == ">")
     return false;
@@ -134,11 +128,11 @@ bool is_proper_string(const std::string &s) {
 }
 
 // w -> OUTPUT_BEGIN NAME OUTPUT_ARGS
-// OUTPUT_BEGIN -> >string OUTPUT_BEGIN | eps
+// OUTPUT_BEGIN -> >string | 1>string | OUTPUT_BEGIN | eps
 // NAME -> string
 
 // OUTPUT_ARGS -> OUTPUT ARG OUTPUT_ARGS | eps
-// OUTPUT_ARG -> >string | string| eps
+// OUTPUT_ARG -> >string | 1>string | string| eps
 
 using str_vec = const std::vector<std::string> &;
 
@@ -175,7 +169,10 @@ bool parseOutputBegin(str_vec s, int &cursor, CommandArgs &command_args) {
   // std::cout << "parsing OutputBegin\n";
   // std::cout << "current token: " << s[cursor] << '\n';
 
-  if (s[cursor] != ">") {
+  // 1> filename
+
+  //
+  if (s[cursor] != ">" && s[cursor] != "1>") {
     return true; // can be eps
   }
 
@@ -186,7 +183,7 @@ bool parseOutputBegin(str_vec s, int &cursor, CommandArgs &command_args) {
 
   cursor++;
 
-  if (s[cursor] == ">") {
+  if (s[cursor] == ">" || s[cursor] == "1>") {
     throw std::runtime_error("Parsing error: '>' must be followed by a string");
   }
 
@@ -217,7 +214,7 @@ bool parseOutputArg(str_vec s, int &cursor, CommandArgs &command_args) {
   // std::cout << "parsing OutpuArg\n";
   // std::cout << "current token: " << s[cursor] << '\n';
 
-  if (s[cursor] == ">" && cursor < s.size() - 1 &&
+  if ((s[cursor] == ">" || s[cursor] == "1>") && cursor < s.size() - 1 &&
       is_proper_string(s[cursor + 1])) {
     cursor += 2;
     command_args.output_files.push_back(s[cursor - 1]);
