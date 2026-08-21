@@ -16,6 +16,7 @@ std::string is_executable(const std::string &com);
 
 void createFile(const std::string &path);
 void writeToFile(const std::string &path, const std::string &what);
+void appendToFile(const std::string &path, const std::string &what);
 
 CommandArgs parse_command(const std::string &s);
 

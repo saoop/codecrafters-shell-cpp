@@ -34,27 +34,41 @@ void Shell::writeToFiles(const std::string &what,
   }
 }
 
-void Shell::writeToOutputFiles(const std::string &what) {
-  writeToFiles(what, command_args.output_files);
-}
-void Shell::output(const std::string &s) {
-  if (command_args.output_files.size() > 0) {
-    // output to file
-    writeToOutputFiles(s);
-
-  } else {
-    printLine(s);
+void Shell::appendToFiles(const std::string &what,
+                          const std::vector<std::string> &paths) {
+  for (auto path : paths) {
+    appendToFile(path, what);
   }
 }
 
-void Shell::writeErrorToFiles(const std::string &what) {
-  writeToFiles(what, command_args.error_output_files);
+void Shell::output(const std::string &what) {
+  if (command_args.output_files.size() > 0) {
+    // output to file
+    writeToFiles(what, command_args.output_files);
+  }
+
+  if (command_args.append_output_files.size() > 0) {
+    appendToFiles(what, command_args.append_output_files);
+  }
+
+  if (command_args.append_output_files.size() == 0 &&
+      command_args.output_files.size() == 0) {
+    printLine(what);
+  }
 }
 
 void Shell::outputError(const std::string &what) {
-  if (command_args.error_output_files.size() > 0) {
-    writeErrorToFiles(what);
-  } else {
+  if (command_args.error_files.size() > 0) {
+    // output to file
+    writeToFiles(what, command_args.error_files);
+  }
+
+  if (command_args.appendd_error_files.size() > 0) {
+    appendToFiles(what, command_args.appendd_error_files);
+  }
+
+  if (command_args.appendd_error_files.size() == 0 &&
+      command_args.error_files.size() == 0) {
     printLine(what);
   }
 }
@@ -89,7 +103,7 @@ void Shell::start() {
 
     // Always create folders for errors and output.
     createFiles(command_args.output_files);
-    createFiles(command_args.error_output_files);
+    createFiles(command_args.error_files);
 
     // check if it's a built in command
     if (commands.count(command_args.command_name)) {

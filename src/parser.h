@@ -13,6 +13,11 @@ enum ParseStates {
 
 };
 
+bool inline isSpecialCharacter(const std::string &s) {
+  return s == ">" || s == "1>" || s == "2>" || s == ">>" || s == "1>>" ||
+         s == "2>>";
+}
+
 std::vector<std::string> parseCommand(const std::string &s);
 
 bool is_proper_string(const std::string &s);

@@ -51,3 +51,10 @@ void writeToFile(const std::string &path, const std::string &what) {
   file << what << "\n";
   file.close();
 }
+
+void appendToFile(const std::string &path, const std::string &what) {
+  std::ofstream file;
+  file.open(path, std::ofstream::app);
+  file << what << "\n";
+  file.close();
+}

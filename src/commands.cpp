@@ -1,5 +1,8 @@
+#include "commands.h"
 #include "command_utils.h"
-
+#include <string>
+#include <unordered_map>
+#include <vector>
 Command CommandBuilder::build_exit(Shell &shell) {
   Command exit_command{
       .name = "exit",
