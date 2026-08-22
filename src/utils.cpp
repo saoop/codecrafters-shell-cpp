@@ -34,10 +34,10 @@ bool checkStrOnlySpaces(const std::string &s) {
 void TrieCompletions::traverse(std::vector<std::string> &out,
                                TrieNode *currentNode,
                                std::string currentString) {
-  if (currentNode->empty() || currentNode->is_word) {
+  if (currentNode->is_word) {
     // endnode
     out.push_back(currentString);
-    return;
+    // return;
   }
 
   for (const auto &[key, node_ptr] : currentNode->children) {
@@ -62,6 +62,7 @@ std::vector<std::string> TrieCompletions::completions(const std::string &what) {
 }
 
 bool TrieCompletions::search(const std::string &what) {
+  // Searches the prefix tree for word 'what'
   TrieNode *node = &root;
   for (char c : what) {
     if (!node->has(c)) {
@@ -69,7 +70,10 @@ bool TrieCompletions::search(const std::string &what) {
     }
     node = node->children[c].get();
   }
-  return true;
+  if (node->is_word) {
+    return true;
+  }
+  return false;
 }
 void TrieCompletions::insert(const std::string what) {
   TrieNode *node = &root;

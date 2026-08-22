@@ -23,6 +23,7 @@ char *completions_generator(const char *text, int state) {
   }
   if (index >= matches.size())
     return nullptr;
+
   return strdup(matches[index++].c_str());
 }
 
