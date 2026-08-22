@@ -20,6 +20,11 @@ Command CommandBuilder::build_echo(Shell &shell) {
       .handler = [&shell](std::vector<std::string> args,
                           std::unordered_map<std::string, std::string> kargs) {
         std::string full_str;
+        if (args.size() == 0) {
+          shell.output("");
+          return;
+        }
+
         for (int i = 0; i < args.size() - 1; i++) {
           full_str += args[i];
           full_str += " ";

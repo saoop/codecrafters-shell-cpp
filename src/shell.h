@@ -1,15 +1,18 @@
-// shell.h
 #pragma once
 #include "commands.h"
+#include "utils.h"
 #include <filesystem>
+#include <memory>
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <vector>
 namespace fs = std::filesystem;
 
 class Shell {
 public:
   Shell();
+
   void exit();
   void output(const std::string &s);
   void outputError(const std::string &s);
@@ -36,6 +39,7 @@ public:
   Shell &operator=(const Shell &) = delete;
 
 private:
+  // std::unique_ptr<TrieCompletions> completions;
   CommandArgs command_args;
   bool m_exit_flag{false};
   fs::path current_path;

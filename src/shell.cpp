@@ -1,12 +1,30 @@
 #include "shell.h"
 #include "command_utils.h"
-// #include "commands.h"
 #include "utils.h"
 #include <filesystem>
 #include <iostream>
+#include <memory>
+#include <readline/history.h>
+#include <readline/readline.h>
 #include <unordered_map>
 
 namespace fs = std::filesystem;
+
+// Must be a global variable for readline lib to work
+std::unique_ptr<TrieCompletions> completions =
+    std::make_unique<TrieCompletions>();
+
+char *completions_generator(const char *text, int state) {
+  static std::vector<std::string> matches;
+  static size_t index;
+  if (state == 0) { // first call
+    matches = completions->completions(text);
+    index = 0;
+  }
+  if (index >= matches.size())
+    return nullptr;
+  return strdup(matches[index++].c_str());
+}
 
 Shell::Shell() {
   // build built-in commands
@@ -18,6 +36,13 @@ Shell::Shell() {
   commands.insert({"type", CommandBuilder::build_type(*this)});
   commands.insert({"pwd", CommandBuilder::build_pwd(*this)});
   commands.insert({"cd", CommandBuilder::build_cd(*this)});
+
+  completions = std::make_unique<TrieCompletions>();
+
+  // add all built in commands into Trie
+  for (auto &[name, _] : commands) {
+    completions->insert(name);
+  }
 }
 
 void Shell::exit() { m_exit_flag = true; }
@@ -83,7 +108,8 @@ std::string Shell::execute(const std::string &com) {
   std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(com.c_str(), "r"),
                                                 pclose);
   if (!pipe) {
-    throw std::runtime_error("popen() failed!");
+    throw std::runtime_error(
+        "popen() failed!"); // TODO: use the output function.
   }
   while (fgets(buffer.data(), static_cast<int>(buffer.size()), pipe.get()) !=
          nullptr) {
@@ -92,11 +118,45 @@ std::string Shell::execute(const std::string &com) {
   return result;
 };
 
+// char **
+
+// char *completion_generator(const char *text, int state) {
+//   static std::vector<std::string> matches;
+//   static size_t index;
+//   if (state == 0) { // first call
+//     // matches =
+//   }
+// }
+// char **completion_hook(const char *text, int start, int end) {
+//   rl_attempted_completion_over = 1;
+//   return rl_completion_matches(text, completion_generator);
+// };
+
 void Shell::start() {
+
   while (!m_exit_flag) {
     std::string com;
-    std::cout << "$ ";
-    std::getline(std::cin, com);
+    // std::cout << "$ ";
+
+    // std::getline(std::cin, com);
+
+    char *str;
+    rl_attempted_completion_function = [](const char *text, int start,
+                                          int end) -> char ** {
+      rl_attempted_completion_over = 1;
+      return rl_completion_matches(text, completions_generator);
+    };
+
+    str = readline("$ ");
+    com = strdup(str);
+    free(str);
+
+    if (checkStrOnlySpaces(com)) {
+      // std::cout << "\n";
+      continue;
+    }
+
+    // for (char const &c : std::ifstream(std::cin))
 
     command_args = parse_command(com);
     // std::cout << command_args.args[0];

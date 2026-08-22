@@ -154,17 +154,16 @@ bool TokenGrammarParser::parseOutputBegin() {
   }
 
   // std::cout << "parsing OutputBegin\n";
-  // std::cout << "current token: " << s[cursor] << '\n';
+  // std::cout << "current token: " << m_tokens[m_cursor] << '\n';
 
-  // 1> filename
-
-  //
   if (!isSpecialCharacter(m_tokens[m_cursor])) {
+
     return true; // can be eps
   }
 
   if (m_cursor >= m_tokens.size() - 1) {
     // return
+    // TODO: musnt be a runtime error, just display in shell
     throw std::runtime_error("Parsing error: '>' must be followed by a string");
   } // another rule? string
 
