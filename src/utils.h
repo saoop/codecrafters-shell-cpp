@@ -11,7 +11,7 @@ bool checkStrOnlySpaces(const std::string &s);
 
 struct TrieNode {
   // TrieNode class to  use in completions
-
+  bool is_word = false;
   // unique ptr so that the TrieNode is recursively destroyed
   std::unordered_map<char, std::unique_ptr<TrieNode>> children;
 

@@ -24,7 +24,7 @@ std::vector<std::string> split_string(const std::string &s, char delim) {
 
 bool checkStrOnlySpaces(const std::string &s) {
   for (auto &c : s) {
-    if (c != '\n' || c != '\t' || c != ' ') {
+    if (c != '\n' && c != '\t' && c != ' ') {
       return false;
     }
   }
@@ -34,11 +34,12 @@ bool checkStrOnlySpaces(const std::string &s) {
 void TrieCompletions::traverse(std::vector<std::string> &out,
                                TrieNode *currentNode,
                                std::string currentString) {
-  if (currentNode->empty()) {
+  if (currentNode->empty() || currentNode->is_word) {
     // endnode
     out.push_back(currentString);
     return;
   }
+
   for (const auto &[key, node_ptr] : currentNode->children) {
     traverse(out, node_ptr.get(), currentString + key);
   }
@@ -81,4 +82,5 @@ void TrieCompletions::insert(const std::string what) {
     // need get() because it gets the raw address of unique_ptr
     node = node->children[c].get();
   }
+  node->is_word = true;
 }
