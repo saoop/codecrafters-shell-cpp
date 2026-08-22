@@ -43,6 +43,10 @@ Shell::Shell() {
   for (auto &[name, _] : commands) {
     completions->insert(name);
   }
+
+  for (auto &name : get_all_executables()) {
+    completions->insert(name);
+  }
 }
 
 void Shell::exit() { m_exit_flag = true; }
@@ -118,27 +122,10 @@ std::string Shell::execute(const std::string &com) {
   return result;
 };
 
-// char **
-
-// char *completion_generator(const char *text, int state) {
-//   static std::vector<std::string> matches;
-//   static size_t index;
-//   if (state == 0) { // first call
-//     // matches =
-//   }
-// }
-// char **completion_hook(const char *text, int start, int end) {
-//   rl_attempted_completion_over = 1;
-//   return rl_completion_matches(text, completion_generator);
-// };
-
 void Shell::start() {
 
   while (!m_exit_flag) {
     std::string com;
-    // std::cout << "$ ";
-
-    // std::getline(std::cin, com);
 
     char *str;
     rl_attempted_completion_function = [](const char *text, int start,
@@ -152,14 +139,10 @@ void Shell::start() {
     free(str);
 
     if (checkStrOnlySpaces(com)) {
-      // std::cout << "\n";
       continue;
     }
 
-    // for (char const &c : std::ifstream(std::cin))
-
     command_args = parse_command(com);
-    // std::cout << command_args.args[0];
 
     // Always create folders for errors and output.
     createFiles(command_args.output_files);

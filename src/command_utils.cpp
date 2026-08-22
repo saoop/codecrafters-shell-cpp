@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 CommandArgs parse_command(const std::string &s) {
@@ -35,6 +36,26 @@ std::string is_executable(const std::string &com) {
   }
 
   return "NO";
+}
+
+std::unordered_set<std::string> get_all_executables() {
+  std::unordered_set<std::string> executables;
+  std::vector<std::string> paths = split_string(getenv("PATH"), ':');
+  for (const auto &path : paths) {
+    if (!fs::exists(path)) {
+      continue;
+    }
+    for (const auto &entry : fs::directory_iterator(path)) {
+      // check for exec permissions using fs.
+      bool has_exec = (fs::status(entry).permissions() &
+                       fs::perms::owner_exec) != fs::perms::none;
+      if (has_exec) {
+        executables.insert(entry.path().filename().string());
+      }
+    }
+  }
+
+  return executables;
 }
 
 void createFile(const std::string &path) {

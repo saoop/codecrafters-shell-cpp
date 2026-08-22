@@ -6,6 +6,7 @@
 #include <functional>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace fs = std::filesystem;
@@ -13,6 +14,8 @@ namespace fs = std::filesystem;
 CommandArgs get_command_args(const std::vector<std::string> &s);
 
 std::string is_executable(const std::string &com);
+
+std::unordered_set<std::string> get_all_executables();
 
 void createFile(const std::string &path);
 void writeToFile(const std::string &path, const std::string &what);
