@@ -105,7 +105,7 @@ char *completions_generator(const char *text, int state) {
           }
         }
       }
-      if (matches.size() == 1 && !matches[0].ends_with('/')) {
+      if (matches.size() == 1 && matches[0].ends_with('/')) {
         rl_completion_append_character = '\0';
       }
     }
