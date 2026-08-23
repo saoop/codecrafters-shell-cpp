@@ -45,10 +45,22 @@ char *completions_generator(const char *text, int state) {
   bool is_prev_char_special =
       tokens.size() > 1 && isSpecialCharacter(tokens[tokens.size() - 2]);
 
-  if (is_prev_char_special || had_command_name) {
+  // empty char for the input of filename
+  // bool command_written = tokens.size() == 1 &&
+  // completions->search(tokens[0]);
+
+  // when file:
+  //  previous is >
+  //  we had a string in the tokens.
+
+  bool prev_command_then_empty = (tokens.size() > 0 && strcmp(text, "") == 0);
+
+  // std::cout << (text == "") << "\n";
+
+  if (is_prev_char_special || prev_command_then_empty || had_command_name) {
 
     // filename completion
-    std::string incomplete_path = tokens.back();
+    std::string incomplete_path = strcmp(text, "") == 0 ? "" : tokens.back();
 
     std::vector<std::string> split_path = split_string(incomplete_path, '/');
     std::string file_dir_to_search = "";
@@ -68,14 +80,10 @@ char *completions_generator(const char *text, int state) {
     }
     // std::cout << path << "\n";
 
-    static std::unique_ptr<TrieCompletions> filenameTrie =
-        std::make_unique<TrieCompletions>();
-
     if (state == 0) {
       matches = {};
       // first time call -> reconstruct filenameTrie
       // delete old one and assign a new pointer
-      filenameTrie.reset(new TrieCompletions());
       index = 0;
       // get all folders and files in path
 
