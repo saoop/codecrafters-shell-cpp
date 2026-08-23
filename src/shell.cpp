@@ -97,8 +97,16 @@ char *completions_generator(const char *text, int state) {
       for (auto &dir : fs::directory_iterator(path_to_search)) {
         std::string candidate = dir.path().filename().string();
         if (candidate.starts_with(file_dir_to_search)) {
-          matches.push_back((starting / candidate).string());
+          std::string match = (starting / candidate).string();
+          if (fs::is_directory(shell.get_current_path() / match)) {
+            matches.push_back(match + "/");
+          } else {
+            matches.push_back(match);
+          }
         }
+      }
+      if (matches.size() == 1) {
+        rl_completion_append_character = '\0';
       }
     }
   } else {
@@ -223,6 +231,7 @@ void Shell::start() {
                                           int end) -> char ** {
       // std::cout << text << " <- in complesitons\n";
       rl_attempted_completion_over = 1;
+      rl_completion_append_character = ' ';
       return rl_completion_matches(text, completions_generator);
     };
 
