@@ -1,5 +1,6 @@
 #include "shell.h"
 #include "command_utils.h"
+#include "parser.h"
 #include "utils.h"
 #include <filesystem>
 #include <iostream>
@@ -14,13 +15,84 @@ namespace fs = std::filesystem;
 std::unique_ptr<TrieCompletions> completions =
     std::make_unique<TrieCompletions>();
 
+bool hadCommandName(std::vector<std::string> &tokens) {
+  int i{1};
+  while (i < tokens.size()) {
+    if (isSpecialCharacter(tokens[i])) {
+      i += 2; // skip current and next, since next must be a filename
+    } else {
+      return true;
+    }
+  }
+  //  skipped all tokens -> only filenames and '>'-like tokens
+  return false;
+}
+
 char *completions_generator(const char *text, int state) {
   static std::vector<std::string> matches;
+
+  static std::vector<std::string> file_matches;
+  // since there are a lot of files
+
+  // first parse.
   static size_t index;
-  if (state == 0) { // first call
-    matches = completions->completions(text);
-    index = 0;
+
+  std::vector<std::string> tokens = tokenizeCommand(rl_line_buffer);
+
+  bool had_command_name = hadCommandName(tokens);
+
+  // check if the previous token indicates a filename
+  bool is_prev_char_special =
+      tokens.size() > 1 && isSpecialCharacter(tokens[tokens.size() - 2]);
+
+  if (is_prev_char_special || had_command_name) {
+    // filename completion
+    std::string incomplete_path = tokens.back();
+    std::vector<std::string> split_path = split_string(incomplete_path, '/');
+
+    // build the full path from pwd + split_path
+    Shell &shell = Shell::getInstance();
+    std::string path = shell.get_current_path();
+
+    for (int i{}; i < static_cast<int>(split_path.size()) - 2; i++) {
+      path += ("/" + split_path[i]);
+    }
+
+    static std::unique_ptr<TrieCompletions> filenameTrie =
+        std::make_unique<TrieCompletions>();
+
+    if (state == 0) {
+      // first time call -> reconstruct filenameTrie
+      // delete old one and assign a new pointer
+      filenameTrie.reset(new TrieCompletions());
+
+      // get all folders and files in path
+      for (auto &dir : fs::directory_iterator(path)) {
+        if (dir.is_directory()) {
+          filenameTrie->insert(dir.path().filename().relative_path().string() +
+                               "/");
+        } else {
+          filenameTrie->insert(dir.path().filename().relative_path().string());
+        }
+      }
+      index = 0;
+      matches = filenameTrie->completions(tokens[tokens.size() - 1]);
+    }
+
+    // return completions
+
+  } else {
+    if (state == 0) {
+      matches = completions->completions(text);
+      index = 0;
+    }
+    // command name completion
   }
+
+  // if (state == 0) { // first call
+  //   matches = completions->completions(text);
+  //   index = 0;
+  // }
   if (index >= matches.size())
     return nullptr;
 
@@ -29,6 +101,8 @@ char *completions_generator(const char *text, int state) {
 
 Shell::Shell() {
   // build built-in commands
+
+  // instance = this;
 
   current_path = fs::current_path();
 
@@ -131,9 +205,12 @@ void Shell::start() {
     char *str;
     rl_attempted_completion_function = [](const char *text, int start,
                                           int end) -> char ** {
+      // std::cout << text << " <- in complesitons\n";
       rl_attempted_completion_over = 1;
       return rl_completion_matches(text, completions_generator);
     };
+
+    // Write an input handler.
 
     str = readline("$ ");
     com = strdup(str);

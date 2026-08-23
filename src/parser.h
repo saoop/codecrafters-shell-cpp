@@ -18,7 +18,7 @@ bool inline isSpecialCharacter(const std::string &s) {
          s == "2>>";
 }
 
-std::vector<std::string> parseCommand(const std::string &s);
+std::vector<std::string> tokenizeCommand(const std::string &s);
 
 bool is_proper_string(const std::string &s);
 

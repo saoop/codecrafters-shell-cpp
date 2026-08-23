@@ -9,7 +9,7 @@
 #include <vector>
 
 CommandArgs parse_command(const std::string &s) {
-  std::vector<std::string> tokens = parseCommand(s);
+  std::vector<std::string> tokens = tokenizeCommand(s);
   int cursor = 0;
 
   TokenGrammarParser parser(tokens);

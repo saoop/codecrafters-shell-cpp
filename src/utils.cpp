@@ -35,11 +35,11 @@ void TrieCompletions::traverse(std::vector<std::string> &out,
                                TrieNode *currentNode,
                                std::string currentString) {
   if (currentNode->is_word) {
-    // endnode
     out.push_back(currentString);
-    // return;
   }
 
+  // If it's a word -> children can be empty. But we need all possible
+  // completions.
   for (const auto &[key, node_ptr] : currentNode->children) {
     traverse(out, node_ptr.get(), currentString + key);
   }

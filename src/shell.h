@@ -10,9 +10,8 @@
 namespace fs = std::filesystem;
 
 class Shell {
+protected:
 public:
-  Shell();
-
   void exit();
   void output(const std::string &s);
   void outputError(const std::string &s);
@@ -34,11 +33,18 @@ public:
     }
   }
 
-  // Disable copies
+  inline static Shell &getInstance() {
+    static Shell instance;
+    return instance;
+  }
+
+  // Disable copies and assignment
   Shell(const Shell &) = delete;
   Shell &operator=(const Shell &) = delete;
 
 private:
+  Shell();
+
   // std::unique_ptr<TrieCompletions> completions;
   CommandArgs command_args;
   bool m_exit_flag{false};

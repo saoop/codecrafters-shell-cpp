@@ -9,7 +9,7 @@ bool is_proper_string(const std::string &s) {
   return true;
 }
 
-std::vector<std::string> parseCommand(const std::string &s) {
+std::vector<std::string> tokenizeCommand(const std::string &s) {
   int next_index = 1;
   int last_index = 0;
   int current_index = 0;
