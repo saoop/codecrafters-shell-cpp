@@ -212,24 +212,6 @@ bool TokenGrammarParser::parseName() {
 }
 
 bool TokenGrammarParser::parseOutputArg() {
-
-  // std::cout << "parsing OutpuArg\n";
-  // std::cout << "current token: " << s[cursor] << '\n';
-
-  // if (m_tokens[m_cursor].starts_with('-')) {
-  //   // flag
-  //   if (m_cursor >= m_tokens.size() - 1) {
-  //     return false; // invalid --> flag not filled
-  //   }
-
-  //   m_CommandArgs.flags.insert(
-
-  //       {m_tokens[m_cursor].substr(1, m_tokens[m_cursor].size() - 1),
-  //        m_tokens[m_cursor + 1]});
-  //   m_cursor += 2;
-  //   return true;
-  // }
-
   if (isFileCharacter(m_tokens[m_cursor]) && m_cursor < m_tokens.size() - 1 &&
       is_proper_string(m_tokens[m_cursor + 1])) {
 

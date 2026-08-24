@@ -24,6 +24,8 @@ char *completions_generator(const char *text, int state) {
   std::vector<std::string> tokens = tokenizeCommand(rl_line_buffer);
 
   bool had_command_name = hadCommandName(tokens);
+  std::string command_name = findCommandName(tokens); // may be incomplete
+  Shell &shell = Shell::getInstance();
 
   // check if the previous token indicates that next must be a filename
   bool prev_char_points_to_file_name =
@@ -32,8 +34,21 @@ char *completions_generator(const char *text, int state) {
 
   bool prev_command_then_empty = (tokens.size() > 0 && strcmp(text, "") == 0);
 
-  if (prev_char_points_to_file_name || prev_command_then_empty ||
-      had_command_name) {
+  if (shell.hasCompletion(command_name)) {
+    if (state == 0) {
+      matches = {};
+      index = 0;
+      // open file
+      std::string path = shell.getCompletionPath(command_name);
+
+      // Open the file in a thread
+      std::string results = shell.execute(path);
+
+      matches = split_string(results, ' ');
+    }
+
+  } else if (prev_char_points_to_file_name || prev_command_then_empty ||
+             had_command_name) {
     // Construct maatches
     if (state == 0) {
       matches = {};
@@ -49,7 +64,6 @@ char *completions_generator(const char *text, int state) {
         to_search = split_path.back();
       }
 
-      Shell &shell = Shell::getInstance();
       fs::path pwd = shell.get_current_path();
 
       // sub path to the search

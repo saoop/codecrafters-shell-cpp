@@ -11,8 +11,11 @@ std::vector<std::string> split_string(const std::string &s, char delim);
 bool checkStrOnlySpaces(const std::string &s);
 
 bool hadCommandName(std::vector<std::string> &tokens);
+
 std::vector<std::string> findMatchingFiles(fs::path pwd, fs::path &sub_path,
                                            std::string &search_token);
+
+std::string findCommandName(std::vector<std::string> &tokens);
 struct TrieNode {
   // TrieNode class to  use in completions
   bool is_word = false;

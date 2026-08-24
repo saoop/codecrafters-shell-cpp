@@ -45,6 +45,20 @@ bool hadCommandName(std::vector<std::string> &tokens) {
   return false;
 }
 
+std::string findCommandName(std::vector<std::string> &tokens) {
+  int i{};
+  while (i < tokens.size()) {
+    if (isFileCharacter(tokens[i])) {
+      // skip
+      i += 2;
+    } else {
+      return tokens[i];
+    }
+  }
+
+  return "";
+}
+
 std::vector<std::string> findMatchingFiles(fs::path pwd, fs::path &sub_path,
                                            std::string &search_token) {
   std::vector<std::string> matches = {};
