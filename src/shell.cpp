@@ -118,6 +118,19 @@ Shell::Shell() {
   };
 }
 
+bool Shell::hasCompletion(std::string &commandName) {
+  return programmable_completions.count(commandName) > 0;
+}
+
+std::string Shell::getCompletionPath(std::string &commandName) {
+  return programmable_completions[commandName];
+}
+
+void Shell::setCompletion(std::string commandName,
+                          std::string pathToCompletion) {
+  programmable_completions.insert({commandName, pathToCompletion});
+}
+
 void Shell::exit() { m_exit_flag = true; }
 void Shell::printLine(std::string_view s) { std::cout << s << "\n"; }
 void Shell::createFiles(const std::vector<std::string> &paths) {

@@ -42,8 +42,14 @@ public:
   Shell(const Shell &) = delete;
   Shell &operator=(const Shell &) = delete;
 
+  bool hasCompletion(std::string &commandName);
+  void setCompletion(std::string commandName, std::string pathToCompletion);
+  std::string getCompletionPath(std::string &commandName);
+
 private:
   Shell();
+
+  std::unordered_map<std::string, std::string> programmable_completions;
 
   // std::unique_ptr<TrieCompletions> completions;
   CommandArgs command_args;

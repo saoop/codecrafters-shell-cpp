@@ -125,9 +125,43 @@ Command CommandBuilder::build_complete(Shell &shell) {
       .name = "complete",
       .handler = [&shell](std::vector<std::string> args,
                           std::unordered_map<std::string, std::string> flags) {
-        if (flags.count("p") > 0) {
-          shell.outputError("complete: " + flags["p"] +
-                            ": no completion specification");
+        // just pass all args and handle it myself.
+
+        struct Args {
+          bool p_flag = false;
+          std::string p_command;
+          bool C_flag = false;
+          std::pair<std::string, std::string> C_path_comm;
+        };
+
+        Args parsed_args;
+        int cursor{};
+        while (cursor < args.size()) {
+          // std::cout << args[cursor];
+          if (args[cursor] == "-p") {
+            parsed_args.p_flag = true;
+            parsed_args.p_command = args[++cursor];
+          } else if (args[cursor] == "-C") {
+            parsed_args.C_flag = true;
+            parsed_args.C_path_comm = {args[++cursor], args[++cursor]};
+          }
+          cursor++;
+        }
+
+        if (parsed_args.p_flag) {
+          if (shell.hasCompletion(parsed_args.p_command)) {
+            shell.output("complete -C " +
+                         shell.getCompletionPath(parsed_args.p_command) + " " +
+                         parsed_args.p_command);
+          } else {
+            shell.outputError("complete: " + parsed_args.p_command +
+                              ": no completion specification");
+          }
+        }
+
+        if (parsed_args.C_flag) {
+          shell.setCompletion(parsed_args.C_path_comm.second,
+                              parsed_args.C_path_comm.first);
         }
       }};
 
