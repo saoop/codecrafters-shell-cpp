@@ -53,11 +53,12 @@ char *completions_generator(const char *text, int state) {
         }
         idx++;
       }
+
       args_to_comp_script += tokens[idx];
       idx++;
       args_to_comp_script += tokens.back(); // word being completed
-      while (idx < tokens.size() -
-                       1) { // i am not sure in which direction it should go
+      if (idx <
+          tokens.size() - 1) { // i am not sure in which direction it should go
         args_to_comp_script += tokens[idx];
       }
 
