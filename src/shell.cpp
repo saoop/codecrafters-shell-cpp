@@ -41,10 +41,31 @@ char *completions_generator(const char *text, int state) {
       // open file
       std::string path = shell.getCompletionPath(command_name);
 
+      // Needs refactring.
+
+      // arguments
+      std::string args_to_comp_script;
+      int idx{};
+      while (idx < tokens.size()) {
+        if (tokens[idx] == command_name) {
+
+          break;
+        }
+        idx++;
+      }
+      args_to_comp_script += tokens[idx];
+      idx++;
+      args_to_comp_script += tokens.back(); // word being completed
+      while (idx < tokens.size() -
+                       1) { // i am not sure in which direction it should go
+        args_to_comp_script += tokens[idx];
+      }
+
       // Open the file in a thread
-      std::string results = shell.execute(path);
+      std::string results = shell.execute(path + " " + args_to_comp_script);
 
       matches = split_string(results, '\n');
+      // So bad.....
       if (matches.back() == "") {
         matches = {matches.begin(), matches.end() - 1};
       }
