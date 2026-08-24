@@ -56,10 +56,10 @@ char *completions_generator(const char *text, int state) {
 
       args_to_comp_script += tokens[idx];
       idx++;
-      args_to_comp_script += tokens.back(); // word being completed
+      args_to_comp_script += (" " + tokens.back()); // word being completed
       if (idx <
           tokens.size() - 1) { // i am not sure in which direction it should go
-        args_to_comp_script += tokens[idx];
+        args_to_comp_script += (" " + tokens[idx]);
       }
 
       // Open the file in a thread
