@@ -17,11 +17,14 @@ std::vector<std::string> split_string(const std::string &s, char delim) {
       continue;
     }
 
-    if (pos - start > 0) {
-      out.push_back(s.substr(start, pos - start));
-      start = pos + 1;
-    }
+    out.push_back(s.substr(start, pos - start));
+    start = pos + 1;
   }
+
+  if (out.back() == "") {
+    return {out.begin(), out.end() - 1};
+  }
+
   return out;
 }
 
