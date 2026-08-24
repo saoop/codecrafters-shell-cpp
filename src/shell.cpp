@@ -66,8 +66,7 @@ char *completions_generator(const char *text, int state) {
       matches = findMatchingFiles(pwd, sub_path, to_search);
 
       // So that the space is added when we reach a leaf.
-      if (matches.size() == 1 && matches[0].ends_with('/') &&
-          !fs::is_empty(shell.get_current_path() / matches[0])) {
+      if (matches.size() == 1 && matches[0].ends_with('/')) {
         rl_completion_append_character = '\0';
       }
     }
