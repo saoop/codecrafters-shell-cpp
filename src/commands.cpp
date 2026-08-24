@@ -150,8 +150,8 @@ Command CommandBuilder::build_complete(Shell &shell) {
 
         if (parsed_args.p_flag) {
           if (shell.hasCompletion(parsed_args.p_command)) {
-            shell.output("complete -C " +
-                         shell.getCompletionPath(parsed_args.p_command) + " " +
+            shell.output("complete -C '" +
+                         shell.getCompletionPath(parsed_args.p_command) + "' " +
                          parsed_args.p_command);
           } else {
             shell.outputError("complete: " + parsed_args.p_command +
