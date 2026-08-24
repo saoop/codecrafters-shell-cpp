@@ -44,7 +44,7 @@ char *completions_generator(const char *text, int state) {
       // Open the file in a thread
       std::string results = shell.execute(path);
 
-      matches = split_string(results, ' ');
+      matches = split_string(results, '\n');
       rl_completion_append_character = ' ';
     }
 
