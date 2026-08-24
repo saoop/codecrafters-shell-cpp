@@ -123,8 +123,13 @@ Command CommandBuilder::build_cd(Shell &shell) {
 Command CommandBuilder::build_complete(Shell &shell) {
   Command complete_command{
       .name = "complete",
-      .handler = [](std::vector<std::string> args,
-                    std::unordered_map<std::string, std::string> kargs) {}};
+      .handler = [&shell](std::vector<std::string> args,
+                          std::unordered_map<std::string, std::string> flags) {
+        if (flags.count("p") > 0) {
+          shell.outputError("complete: " + flags["p"] +
+                            ": no completion specification");
+        }
+      }};
 
   return complete_command;
 }

@@ -14,7 +14,7 @@ struct Command {
 struct CommandArgs {
   std::string command_name;
   std::vector<std::string> args;
-  std::unordered_map<std::string, std::string> kargs;
+  std::unordered_map<std::string, std::string> flags;
   std::vector<std::string> output_files;
   std::vector<std::string> error_files;
   std::vector<std::string> append_output_files;

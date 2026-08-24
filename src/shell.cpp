@@ -213,7 +213,8 @@ void Shell::start() {
 
     // check if it's a built in command
     if (commands.count(command_args.command_name)) {
-      commands[command_args.command_name].handler(command_args.args, {});
+      commands[command_args.command_name].handler(command_args.args,
+                                                  command_args.flags);
       continue;
     }
     // check if it's executable
