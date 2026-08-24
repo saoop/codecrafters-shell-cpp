@@ -45,6 +45,9 @@ char *completions_generator(const char *text, int state) {
       std::string results = shell.execute(path);
 
       matches = split_string(results, '\n');
+      if (matches.back() == "") {
+        matches = {matches.begin(), matches.end() - 1};
+      }
       rl_completion_append_character = ' ';
     }
 

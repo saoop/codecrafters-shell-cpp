@@ -21,10 +21,6 @@ std::vector<std::string> split_string(const std::string &s, char delim) {
     start = pos + 1;
   }
 
-  if (out.back() == "") {
-    return {out.begin(), out.end() - 1};
-  }
-
   return out;
 }
 
