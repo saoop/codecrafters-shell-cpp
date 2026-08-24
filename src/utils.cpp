@@ -17,8 +17,10 @@ std::vector<std::string> split_string(const std::string &s, char delim) {
       continue;
     }
 
-    out.push_back(s.substr(start, pos - start));
-    start = pos + 1;
+    if (pos - start > 0) {
+      out.push_back(s.substr(start, pos - start));
+      start = pos + 1;
+    }
   }
   return out;
 }
