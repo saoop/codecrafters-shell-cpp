@@ -45,6 +45,7 @@ char *completions_generator(const char *text, int state) {
       std::string results = shell.execute(path);
 
       matches = split_string(results, ' ');
+      rl_completion_append_character = ' ';
     }
 
   } else if (prev_char_points_to_file_name || prev_command_then_empty ||
