@@ -1,14 +1,18 @@
 #pragma once
+#include <filesystem>
 #include <memory>
 #include <string>
 #include <unordered_map>
-
 #include <vector>
 
+namespace fs = std::filesystem;
 std::vector<std::string> split_string(const std::string &s, char delim);
 
 bool checkStrOnlySpaces(const std::string &s);
 
+bool hadCommandName(std::vector<std::string> &tokens);
+std::vector<std::string> findMatchingFiles(fs::path pwd, fs::path &sub_path,
+                                           std::string &search_token);
 struct TrieNode {
   // TrieNode class to  use in completions
   bool is_word = false;

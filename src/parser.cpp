@@ -156,7 +156,7 @@ bool TokenGrammarParser::parseOutputBegin() {
   // std::cout << "parsing OutputBegin\n";
   // std::cout << "current token: " << m_tokens[m_cursor] << '\n';
 
-  if (!isSpecialCharacter(m_tokens[m_cursor])) {
+  if (!isFileCharacter(m_tokens[m_cursor])) {
 
     return true; // can be eps
   }
@@ -169,7 +169,7 @@ bool TokenGrammarParser::parseOutputBegin() {
 
   m_cursor++;
 
-  if (isSpecialCharacter(m_tokens[m_cursor])) {
+  if (isFileCharacter(m_tokens[m_cursor])) {
     throw std::runtime_error("Parsing error: '>' must be followed by a string");
   }
 
@@ -215,8 +215,7 @@ bool TokenGrammarParser::parseOutputArg() {
   // std::cout << "parsing OutpuArg\n";
   // std::cout << "current token: " << s[cursor] << '\n';
 
-  if (isSpecialCharacter(m_tokens[m_cursor]) &&
-      m_cursor < m_tokens.size() - 1 &&
+  if (isFileCharacter(m_tokens[m_cursor]) && m_cursor < m_tokens.size() - 1 &&
       is_proper_string(m_tokens[m_cursor + 1])) {
 
     if (m_tokens[m_cursor] == "2>") {

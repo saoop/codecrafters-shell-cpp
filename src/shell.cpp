@@ -15,24 +15,8 @@ namespace fs = std::filesystem;
 std::unique_ptr<TrieCompletions> completions =
     std::make_unique<TrieCompletions>();
 
-bool hadCommandName(std::vector<std::string> &tokens) {
-  int i{1};
-  while (i < tokens.size()) {
-    if (isSpecialCharacter(tokens[i])) {
-      i += 2; // skip current and next, since next must be a filename
-    } else {
-      return true;
-    }
-  }
-  //  skipped all tokens -> only filenames and '>'-like tokens
-  return false;
-}
-
 char *completions_generator(const char *text, int state) {
   static std::vector<std::string> matches;
-
-  static std::vector<std::string> file_matches;
-  // since there are a lot of files
 
   // first parse.
   static size_t index;
@@ -41,71 +25,49 @@ char *completions_generator(const char *text, int state) {
 
   bool had_command_name = hadCommandName(tokens);
 
-  // check if the previous token indicates a filename
-  bool is_prev_char_special =
-      tokens.size() > 1 && isSpecialCharacter(tokens[tokens.size() - 2]);
-
-  // empty char for the input of filename
-  // bool command_written = tokens.size() == 1 &&
-  // completions->search(tokens[0]);
-
-  // when file:
-  //  previous is >
-  //  we had a string in the tokens.
+  // check if the previous token indicates that next must be a filename
+  bool prev_char_points_to_file_name =
+      (tokens.size() > 1 && isFileCharacter(tokens[tokens.size() - 2])) ||
+      (tokens.size() == 1 && isFileCharacter(tokens[0]));
 
   bool prev_command_then_empty = (tokens.size() > 0 && strcmp(text, "") == 0);
 
-  // std::cout << (text == "") << "\n";
-
-  if (is_prev_char_special || prev_command_then_empty || had_command_name) {
-
-    // filename completion
-    std::string incomplete_path = strcmp(text, "") == 0 ? "" : tokens.back();
-
-    std::vector<std::string> split_path = split_string(incomplete_path, '/');
-    std::string file_dir_to_search = "";
-
-    if (!incomplete_path.ends_with('/')) {
-      file_dir_to_search = split_path.back();
-    }
-
-    // if ending in '/' -> the last is '';
-
-    // build the full path from pwd + split_path
-    Shell &shell = Shell::getInstance();
-    std::string path = "";
-
-    for (int i{}; i < static_cast<int>(split_path.size()) - 1; i++) {
-      path += (split_path[i] + "/");
-    }
-    // std::cout << path << "\n";
-
+  if (prev_char_points_to_file_name || prev_command_then_empty ||
+      had_command_name) {
+    // Construct maatches
     if (state == 0) {
       matches = {};
-      // first time call -> reconstruct filenameTrie
-      // delete old one and assign a new pointer
       index = 0;
-      // get all folders and files in path
+      // filename completion
+      std::string incomplete_path = strdup(text);
 
+      std::vector<std::string> split_path = split_string(incomplete_path, '/');
+      std::string to_search = "";
+
+      if (!incomplete_path.ends_with('/')) {
+        // if not complete dir
+        to_search = split_path.back();
+      }
+
+      Shell &shell = Shell::getInstance();
+      fs::path pwd = shell.get_current_path();
+
+      // sub path to the search
+      fs::path sub_path = "";
+
+      for (int i{}; i < static_cast<int>(split_path.size()) - 1; i++) {
+        sub_path += (split_path[i] + "/");
+      }
       // // to avoid exceptions
       // if (!fs::is_directory(path)) {
       //   return {};
       // }
 
-      fs::path path_to_search = shell.get_current_path() / path;
-      fs::path starting = path;
-      for (auto &dir : fs::directory_iterator(path_to_search)) {
-        std::string candidate = dir.path().filename().string();
-        if (candidate.starts_with(file_dir_to_search)) {
-          std::string match = (starting / candidate).string();
-          if (fs::is_directory(shell.get_current_path() / match)) {
-            matches.push_back(match + "/");
-          } else {
-            matches.push_back(match);
-          }
-        }
-      }
-      if (matches.size() == 1 && matches[0].ends_with('/')) {
+      matches = findMatchingFiles(pwd, sub_path, to_search);
+
+      // So that the space is added when we reach a leaf.
+      if (matches.size() == 1 && matches[0].ends_with('/') &&
+          !fs::is_empty(shell.get_current_path() / matches[0])) {
         rl_completion_append_character = '\0';
       }
     }
@@ -135,6 +97,7 @@ Shell::Shell() {
   commands.insert({"type", CommandBuilder::build_type(*this)});
   commands.insert({"pwd", CommandBuilder::build_pwd(*this)});
   commands.insert({"cd", CommandBuilder::build_cd(*this)});
+  commands.insert({"complete", CommandBuilder::build_complete(*this)});
 
   completions = std::make_unique<TrieCompletions>();
 
@@ -146,6 +109,14 @@ Shell::Shell() {
   for (auto &name : get_all_executables()) {
     completions->insert(name);
   }
+
+  // Register completions hanler
+  rl_attempted_completion_function = [](const char *text, int start,
+                                        int end) -> char ** {
+    rl_attempted_completion_over = 1;
+    rl_completion_append_character = ' ';
+    return rl_completion_matches(text, completions_generator);
+  };
 }
 
 void Shell::exit() { m_exit_flag = true; }
@@ -227,16 +198,6 @@ void Shell::start() {
     std::string com;
 
     char *str;
-    rl_attempted_completion_function = [](const char *text, int start,
-                                          int end) -> char ** {
-      // std::cout << text << " <- in complesitons\n";
-      rl_attempted_completion_over = 1;
-      rl_completion_append_character = ' ';
-      return rl_completion_matches(text, completions_generator);
-    };
-
-    // Write an input handler.
-
     str = readline("$ ");
     com = strdup(str);
     free(str);

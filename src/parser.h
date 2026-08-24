@@ -13,7 +13,7 @@ enum ParseStates {
 
 };
 
-bool inline isSpecialCharacter(const std::string &s) {
+bool inline isFileCharacter(const std::string &s) {
   return s == ">" || s == "1>" || s == "2>" || s == ">>" || s == "1>>" ||
          s == "2>>";
 }

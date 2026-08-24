@@ -1,4 +1,5 @@
 #include "utils.h"
+#include "parser.h"
 #include <memory>
 #include <string>
 #include <vector>
@@ -29,6 +30,37 @@ bool checkStrOnlySpaces(const std::string &s) {
     }
   }
   return true;
+}
+
+bool hadCommandName(std::vector<std::string> &tokens) {
+  int i{1};
+  while (i < tokens.size()) {
+    if (isFileCharacter(tokens[i])) {
+      i += 2; // skip current and next, since next must be a filename
+    } else {
+      return true;
+    }
+  }
+  //  skipped all tokens -> only filenames and '>'-like tokens
+  return false;
+}
+
+std::vector<std::string> findMatchingFiles(fs::path pwd, fs::path &sub_path,
+                                           std::string &search_token) {
+  std::vector<std::string> matches = {};
+  for (auto &dir : fs::directory_iterator(pwd / sub_path)) {
+    std::string candidate = dir.path().filename().string();
+    if (candidate.starts_with(search_token)) {
+      std::string match = (sub_path / candidate).string();
+      if (fs::is_directory(pwd / match)) {
+        matches.push_back(match + "/");
+      } else {
+        matches.push_back(match);
+      }
+    }
+  }
+
+  return matches;
 }
 
 void TrieCompletions::traverse(std::vector<std::string> &out,

@@ -30,4 +30,5 @@ public:
   static Command build_type(Shell &shell);
   static Command build_pwd(Shell &shell);
   static Command build_cd(Shell &shell);
+  static Command build_complete(Shell &shell);
 };

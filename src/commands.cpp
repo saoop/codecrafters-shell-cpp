@@ -119,3 +119,12 @@ Command CommandBuilder::build_cd(Shell &shell) {
       }};
   return cd_command;
 }
+
+Command CommandBuilder::build_complete(Shell &shell) {
+  Command complete_command{
+      .name = "complete",
+      .handler = [](std::vector<std::string> args,
+                    std::unordered_map<std::string, std::string> kargs) {}};
+
+  return complete_command;
+}
